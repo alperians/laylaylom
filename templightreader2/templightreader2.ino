@@ -235,8 +235,18 @@ void sicaklikk(void)
   else
   {
     sicaklik=sicakliktoplamdeger/sicaklikdizimax;
-    if(sicaklik>tempmax) tempmax=sicaklik;
-    if(sicaklik<tempmin) tempmin=sicaklik;
+    if(sicaklik>tempmax) 
+    {
+      if(!susturucu){
+      buzz(2);      delay(20);      buzz(2);}
+      tempmax=sicaklik;
+    }
+    if(sicaklik<tempmin) 
+    {
+      if(!susturucu){
+      buzz(2);}
+      tempmin=sicaklik;
+    }
   }
   sicakliktoplamgezgin++;
   if(sicakliktoplamgezgin>=sicaklikdizimax) sicakliktoplamgezgin=0;
