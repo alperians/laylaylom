@@ -1,8 +1,7 @@
 #include <LiquidCrystal.h>
 #define warnlightH 50;
-#define warntempH 26.7
+#define warntempH 26.9
 #define warntempL 21.0
-#define lightalarmtrigger 15.0
 #define sicaklikdizimax 10
 #define lightdizimax 3
 int tempdizistart=0;
@@ -13,11 +12,12 @@ int sicaklikdeger;
 float sicakliktoplam[sicaklikdizimax];
 float sicakliktoplamdeger=0;
 int sicakliktoplamgezgin=0;
-float lighttoplam[lightdizimax];
-float lighttoplamdeger=0;
-int lighttoplamgezgin=0;
+float lighttoplam[lightdizimax];//okunan ışık değerlerinin  tutulduğu dizi
+float lighttoplamdeger=0;//light dizisi işlemlerinde kullanılan toplama sonucu değişkeni
+int lighttoplamgezgin=0;//light dizisinin gezmesini sağlayan değişken
 float gerilim;
-float aydinlik;
+float aydinlik;//ortalama aydınlik değeri
+float olcumaydinlik;//o an ölçülen aydinlik değeri
 int sicaklikPin = 0;
 int lightpin=5;
 float deltatemp=0.5;
@@ -75,9 +75,7 @@ void loop(void) {
   {
     alarm =false;    
   }
-  if(!susturucu && abs( aydinlik-oldlight)>lightalarmtrigger)
-  {buzz(2);}
-  oldlight=aydinlik;
+
    // digitalWrite(ledpin,alarm);
     buton=false;
     if(digitalRead(buttonpin) && buttonpushtime>=0)//butontest
@@ -210,7 +208,7 @@ void sicaklikk(void)
  // gerilim = analogRead(sicaklikPin);  
   //delay(50);//2
   
-  aydinlik=analogRead(lightpin);
+  olcumaydinlik=analogRead(lightpin);
   
   //delay(150);//3
   gerilim = analogRead(sicaklikPin);
@@ -240,33 +238,50 @@ void sicaklikk(void)
       if(!susturucu){
       buzz(2);      delay(20);      buzz(2);}
       tempmax=sicaklik;
+      Serial.println("");
+      Serial.println("+++ Sicaklik UST +++");
+      Serial.print("Yeni:");Serial.println(sicaklik);
+      Serial.println("");
     }
     if(sicaklik<tempmin) 
     {
       if(!susturucu){
       buzz(2);}
       tempmin=sicaklik;
+      Serial.println("");
+      Serial.println("--- Sicaklik ALT ---");
+      Serial.print("Yeni:");Serial.println(sicaklik);
+      Serial.println("");
+      
     }
   }
   sicakliktoplamgezgin++;
   if(sicakliktoplamgezgin>=sicaklikdizimax) sicakliktoplamgezgin=0;
   
-  
-  lighttoplam[lighttoplamgezgin]=aydinlik;
+  ////// ışık dizisi doldurucu
+  lighttoplam[lighttoplamgezgin]=olcumaydinlik;
   lighttoplamdeger=0;
   for(int i =0;i<lightdizimax;i++)
   {
     lighttoplamdeger+=lighttoplam[i];
   }
-  aydinlik=lighttoplamdeger/lightdizimax;
+  aydinlik=lighttoplamdeger/lightdizimax;//aydinlik değeri son 3(lightdizimax) değerin ortalaması olmuş oluyor
   lighttoplamgezgin++;
   if(lighttoplamgezgin>=lightdizimax) lighttoplamgezgin=0;
+  ///////////////////////////////////////////
+  
+  
   
   Serial.println("");
-  Serial.print("Sicaklik degeri:");       
+  Serial.print("Anlik sicaklik olcum:");
+  Serial.println(gerilim);
+  Serial.print("Ortalamasal Sicaklik degeri:");       
   Serial.print(sicaklik);                
   Serial.println(" C");
-  Serial.print("Aydinlik(x/1023):");
+  
+  Serial.print("Anlik Aydinlik:");
+  Serial.println(olcumaydinlik);
+  Serial.print("Ortalamasal Aydinlik (x/1023):");
   Serial.print(int(aydinlik));
   Serial.println("");
   Serial.print("Kernel:");
