@@ -1,6 +1,6 @@
 #include <LiquidCrystal.h>
 #define warnlightH 50;
-#define warntempH 26.9
+float warntempH= 27.9;
 #define warntempL 21.0
 #define sicaklikdizimax 10
 #define lightdizimax 3
@@ -90,6 +90,7 @@ void loop(void) {
       //      menudegerlendirme işlemleri çagrılacak
       //1 period için sadece alarm kontrolü onaysız
       //2 perion için max min silme olacak
+      //3 period için max temp alarm set etme
       buttonpushtime=0;
     }
 
@@ -132,7 +133,7 @@ void loop(void) {
 }
 void butondegerlendir()
 {
-  if(buttonpushtime>2)
+  if(buttonpushtime>3)
   {
     lcd.clear();
     lcd.setCursor(0,0);
@@ -189,7 +190,37 @@ void butondegerlendir()
   delay(1000);
   
   break;
+  case 3:
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Isi max alarm");
+  int buttonkomutonaylamatemp=buttonkomutonaylama*10;
   
+  while(buttonkomutonaylamatemp>0)
+  {
+    lcd.setCursor(0,1);
+    lcd.print(warntempH);
+    
+    lcd.print("C   ");
+    lcd.setCursor(7,1);
+    lcd.print(buttonkomutonaylamatemp);
+    if(digitalRead(buttonpin))
+    {
+      buzz(20);
+      warntempH=warntempH+0.50;
+      if(warntempH>35) warntempH=23;
+      buttonkomutonaylamatemp=buttonkomutonaylama*10;
+      
+    }
+    else{
+      buttonkomutonaylamatemp--;
+    }
+    delay(zamanlama/2);
+  }
+  buzz(150);
+  delay(100);
+  buzz(150);
+  break;
    
     
   }
